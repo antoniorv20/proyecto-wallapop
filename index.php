@@ -15,9 +15,8 @@
             <div class="logo">Wallapop</div>
             <ul class="nav-links">
                 <li><a href="inicio.php">Inicio</a></li>
-                <li><a href="publicar.php">Publicar</a></li>
                 <li><a href="perfil.php">Perfil</a></li>
-                <li><a href="inicio-sesion.php">Iniciar Sesión</a></li>
+                <li><a href="inicio-sesion.php">Cerrar Sesión</a></li>
             </ul>
         </nav>
 
