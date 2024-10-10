@@ -1,75 +1,56 @@
 <?php
 // Conexión a la base de datos
-$host = 'localhost'; // Cambia si es necesario
-$db = 'tiendap'; // Cambia por el nombre de tu base de datos
-$user = 'root'; // Cambia por tu usuario de la base de datos
-$pass = ''; // Cambia por tu contraseña de la base de datos
+require_once 'conexion.php';
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    echo "Error de conexión: " . $e->getMessage();
-    exit;
-}
+// Verifica si se ha enviado el formulario
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Validar y sanitizar los datos del formulario
+    $nombre = htmlspecialchars($_POST['nombre']);
+    $precio = htmlspecialchars($_POST['precio']);
+    $descripcion = htmlspecialchars($_POST['descripcion']);
 
-// Verificar si se envió el formulario
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    echo "Formulario enviado. <br>"; // Agrega esta línea para verificar
+    // Manejo de la imagen
+    $target_dir = "../uploads/"; // Directorio donde se guardarán las imágenes
+    $target_file = "uploads/" . basename($_FILES["imagen"]["name"]); // Guardar como ruta relativa
+    $uploadOk = 1;
+    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-    // Recoger y sanitizar datos
-    $nombre = trim($_POST['nombre']);
-    $precio = trim($_POST['precio']);
-    $descripcion = trim($_POST['descripcion']);
-
-    // Validar datos
-    if (empty($nombre) || empty($precio) || empty($descripcion)) {
-        echo "Por favor completa todos los campos.";
-        exit;
+    // Verifica si la imagen es real o un fraude
+    $check = getimagesize($_FILES["imagen"]["tmp_name"]);
+    if ($check === false) {
+        echo "El archivo no es una imagen.";
+        $uploadOk = 0;
     }
 
-    // Validar y sanitizar el precio
-    if (!is_numeric($precio) || $precio <= 0) {
-        echo "El precio debe ser un número positivo.";
-        exit;
+    // Verifica si el archivo ya existe
+    if (file_exists($target_dir . basename($_FILES["imagen"]["name"]))) {
+        echo "Lo siento, el archivo ya existe.";
+        $uploadOk = 0;
     }
 
-    // Manejar la carga de la imagen del producto
-    $imagen = 'default.jpg'; // Ruta por defecto
-    if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] == UPLOAD_ERR_OK) {
-        $imagen = 'img/' . basename($_FILES['imagen']['name']);
-        if (move_uploaded_file($_FILES['imagen']['tmp_name'], $imagen)) {
-            echo "Imagen subida exitosamente. <br>"; // Agrega esta línea para verificar
+    // Verifica el tamaño del archivo
+    if ($_FILES["imagen"]["size"] > 500000) { // Limitar a 500 KB
+        echo "Lo siento, el archivo es demasiado grande.";
+        $uploadOk = 0;
+    }
+
+    // Solo permite ciertos formatos de imagen
+    if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") {
+        echo "Lo siento, solo se permiten archivos JPG, JPEG, PNG y GIF.";
+        $uploadOk = 0;
+    }
+
+    // Verifica si se puede subir el archivo
+    if ($uploadOk == 0) {
+        echo "Lo siento, tu archivo no ha sido subido.";
+    } else {
+        if (move_uploaded_file($_FILES["imagen"]["tmp_name"], $target_dir . basename($_FILES["imagen"]["name"]))) {
+            // Guardar la información del producto en la base de datos
+            $stmt = $pdo->prepare("INSERT INTO productos (nombre, precio, descripcion, imagen) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$nombre, $precio, $descripcion, $target_file]);
+            echo "El producto ha sido subido exitosamente.";
         } else {
-            echo "Error al subir la imagen. <br>"; // Agrega esta línea para verificar
+            echo "Lo siento, hubo un error al subir tu archivo.";
         }
     }
-
-    // Insertar el nuevo producto en la base de datos
-    try {
-        $stmt = $pdo->prepare("INSERT INTO productos (nombre, precio, descripcion, imagen) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$nombre, $precio, $descripcion, $imagen]);
-
-        echo "Producto creado exitosamente. Puedes <a href='../perfil.php'>ver tu perfil aquí</a>.";
-    } catch (PDOException $e) {
-        echo "Error al crear el producto: " . $e->getMessage();
-    }
 }
-?>
-
-<!-- Asegúrate de tener un formulario adecuado para enviar los datos -->
-<form method="POST" enctype="multipart/form-data">
-    <label for="nombre">Nombre:</label>
-    <input type="text" name="nombre" id="nombre" required>
-    
-    <label for="precio">Precio:</label>
-    <input type="text" name="precio" id="precio" required>
-    
-    <label for="descripcion">Descripción:</label>
-    <textarea name="descripcion" id="descripcion" required></textarea>
-    
-    <label for="imagen">Imagen:</label>
-    <input type="file" name="imagen" id="imagen" accept="image/*">
-
-    <input type="submit" value="Crear Artículo">
-</form>

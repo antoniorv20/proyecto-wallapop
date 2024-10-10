@@ -1,11 +1,6 @@
 <?php
-session_start(); // Inicia la sesión
+require_once 'conexion.php';
 
-// Conexión a la base de datos
-$host = 'localhost'; // Cambia si es necesario
-$db = 'tiendap'; // Cambia por el nombre de tu base de datos
-$user = 'root'; // Cambia por tu usuario de la base de datos
-$pass = ''; // Cambia por tu contraseña de la base de datos
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);

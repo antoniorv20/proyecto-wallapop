@@ -14,50 +14,62 @@
         <nav class="navbar">
             <div class="logo">Wallapop</div>
             <ul class="nav-links">
-                <li><a href="inicio.php">Inicio</a></li>
+                <li><a href="index.php">Inicio</a></li>
                 <li><a href="perfil.php">Perfil</a></li>
                 <li><a href="inicio-sesion.php">Cerrar Sesión</a></li>
             </ul>
         </nav>
 
-        <!-- Imagen rectangular -->
-        <div class="banner-image">
-            <img src="img/oferta.jpg" alt="Banner" class="banner-img">
-        </div>
+      
 
         <!-- Banner de búsqueda -->
         <div class="search-banner">
-            <input type="text" class="search-input" placeholder="Buscar artículos...">
-            <button class="search-btn">Buscar</button>
+            <form action="" method="GET"> <!-- Cambia la acción a la misma página -->
+                <input type="text" class="search-input" name="query" placeholder="Buscar artículos..." required>
+                <button type="submit" class="search-btn">Buscar</button>
+            </form>
         </div>
 
         <!-- Sección de artículos -->
         <div class="product-container">
-            <div class="product-card">
-                <img src="img/1.jpg" alt="Artículo 1" class="product-image">
-                <div class="product-info">
-                    <h3 class="product-title">Tensiometro</h3>
-                    <p class="product-price">€10</p>
-                    <p class="product-description">Descripción del artículo 1.</p>
-                </div>
-            </div>
-            <div class="product-card">
-                <img src="img/product2.jpg" alt="Artículo 2" class="product-image">
-                <div class="product-info">
-                    <h3 class="product-title">Artículo 2</h3>
-                    <p class="product-price">€20</p>
-                    <p class="product-description">Descripción del artículo 2.</p>
-                </div>
-            </div>
-            <div class="product-card">
-                <img src="img/product3.jpg" alt="Artículo 3" class="product-image">
-                <div class="product-info">
-                    <h3 class="product-title">Artículo 3</h3>
-                    <p class="product-price">€30</p>
-                    <p class="product-description">Descripción del artículo 3.</p>
-                </div>
-            </div>
-            <!-- Añade más productos según sea necesario -->
+            <?php
+            // Conexión a la base de datos
+            $host = 'localhost'; 
+            $db = 'tiendap'; 
+            $user = 'root'; 
+            $pass = ''; 
+
+            try {
+                $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            } catch (PDOException $e) {
+                echo "Error de conexión: " . $e->getMessage();
+                exit;
+            }
+
+            // Obtener el término de búsqueda
+            $query = isset($_GET['query']) ? trim($_GET['query']) : '';
+
+            // Consultar productos en la base de datos
+            if ($query) {
+                $stmt = $pdo->prepare("SELECT * FROM productos WHERE nombre LIKE ? OR descripcion LIKE ?");
+                $searchTerm = "%" . $query . "%"; // Busca coincidencias en nombre y descripción
+                $stmt->execute([$searchTerm, $searchTerm]);
+            } else {
+                $stmt = $pdo->query("SELECT * FROM productos");
+            }
+
+            // Mostrar productos
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                echo '<div class="product-card">';
+                echo '<img src="' . htmlspecialchars($row['imagen']) . '" alt="' . htmlspecialchars($row['nombre']) . '" class="product-image">';
+                echo '<div class="product-info">';
+                echo '<h3 class="product-title">' . htmlspecialchars($row['nombre']) . '</h3>';
+                echo '<p class="product-price">€' . htmlspecialchars($row['precio']) . '</p>';
+                echo '<p class="product-description">' . htmlspecialchars($row['descripcion']) . '</p>';
+                echo '</div></div>'; // Cierra divs de producto
+            }
+            ?>
         </div>
 
         <!-- Pie de página -->
