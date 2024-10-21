@@ -20,11 +20,9 @@
             </ul>
         </nav>
 
-      
-
         <!-- Banner de búsqueda -->
         <div class="search-banner">
-            <form action="" method="GET"> <!-- Cambia la acción a la misma página -->
+            <form action="" method="GET"> 
                 <input type="text" class="search-input" name="query" placeholder="Buscar artículos..." required>
                 <button type="submit" class="search-btn">Buscar</button>
             </form>
@@ -33,19 +31,7 @@
         <!-- Sección de artículos -->
         <div class="product-container">
             <?php
-            // Conexión a la base de datos
-            $host = 'localhost'; 
-            $db = 'tiendap'; 
-            $user = 'root'; 
-            $pass = ''; 
-
-            try {
-                $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            } catch (PDOException $e) {
-                echo "Error de conexión: " . $e->getMessage();
-                exit;
-            }
+            require_once 'php/conexion.php';
 
             // Obtener el término de búsqueda
             $query = isset($_GET['query']) ? trim($_GET['query']) : '';
@@ -55,20 +41,105 @@
                 $stmt = $pdo->prepare("SELECT * FROM productos WHERE nombre LIKE ? OR descripcion LIKE ?");
                 $searchTerm = "%" . $query . "%"; // Busca coincidencias en nombre y descripción
                 $stmt->execute([$searchTerm, $searchTerm]);
+
+                // Mostrar productos encontrados
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    echo '<div class="product-card">';
+                    echo '<img src="' . htmlspecialchars($row['imagen']) . '" alt="' . htmlspecialchars($row['nombre']) . '" class="product-image">';
+                    echo '<div class="product-info">';
+                    echo '<h3 class="product-title">' . htmlspecialchars($row['nombre']) . '</h3>';
+                    echo '<p class="product-price">€' . htmlspecialchars($row['precio']) . '</p>';
+                    echo '<p class="product-description">' . htmlspecialchars($row['descripcion']) . '</p>';
+                    echo '</div></div>'; // Cierra divs de producto
+                }
+
+                // Si no hay resultados, mostrar productos de ejemplo
+                if ($stmt->rowCount() == 0) {
+                    mostrarProductosEjemplo();
+                }
             } else {
-                $stmt = $pdo->query("SELECT * FROM productos");
+                // Mostrar productos de ejemplo cuando no hay búsqueda
+                mostrarProductosEjemplo();
             }
 
-            // Mostrar productos
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                echo '<div class="product-card">';
-                echo '<img src="' . htmlspecialchars($row['imagen']) . '" alt="' . htmlspecialchars($row['nombre']) . '" class="product-image">';
-                echo '<div class="product-info">';
-                echo '<h3 class="product-title">' . htmlspecialchars($row['nombre']) . '</h3>';
-                echo '<p class="product-price">€' . htmlspecialchars($row['precio']) . '</p>';
-                echo '<p class="product-description">' . htmlspecialchars($row['descripcion']) . '</p>';
-                echo '</div></div>'; // Cierra divs de producto
-            }
+            function mostrarProductosEjemplo() {
+                $productosEjemplo = [
+                    [
+                        'nombre' => 'Bicicleta de montaña',
+                        'precio' => 150.00,
+                        'descripcion' => 'Bicicleta de montaña en excelente estado, ideal para senderismo.',
+                        'imagen' => 'img/bici.jpg',
+                        'enlace' => 'producto1.html' 
+
+                    ],
+                    [
+                        'nombre' => 'Cámara fotográfica',
+                        'precio' => 300.00,
+                        'descripcion' => 'Cámara réflex digital con lente 18-55mm. Muy poco uso.',
+                        'imagen' => 'img/camara.jpg',
+                        'enlace' => 'producto1.html'
+                    ],
+                    [
+                        'nombre' => 'Cámara fotográfica',
+                        'precio' => 300.00,
+                        'descripcion' => 'Cámara réflex digital con lente 18-55mm. Muy poco uso.',
+                        'imagen' => 'img/camara.jpg',
+                        'enlace' => 'producto1.html'
+                    ],
+                    [
+                        'nombre' => 'Cámara fotográfica',
+                        'precio' => 300.00,
+                        'descripcion' => 'Cámara réflex digital con lente 18-55mm. Muy poco uso.',
+                        'imagen' => 'img/camara.jpg',
+                        'enlace' => 'producto1.html'
+                    ],
+                    [
+                        'nombre' => 'Cámara fotográfica',
+                        'precio' => 300.00,
+                        'descripcion' => 'Cámara réflex digital con lente 18-55mm. Muy poco uso.',
+                        'imagen' => 'img/camara.jpg',
+                        'enlace' => 'producto1.html'
+                    ],
+                    [
+                        'nombre' => 'Cámara fotográfica',
+                        'precio' => 300.00,
+                        'descripcion' => 'Cámara réflex digital con lente 18-55mm. Muy poco uso.',
+                        'imagen' => 'img/camara.jpg',
+                        'enlace' => 'producto1.html'
+                    ],
+                    [
+                        'nombre' => 'Cámara fotográfica',
+                        'precio' => 300.00,
+                        'descripcion' => 'Cámara réflex digital con lente 18-55mm. Muy poco uso.',
+                        'imagen' => 'img/camara.jpg',
+                        'enlace' => 'producto1.html'
+                    ],
+                    [
+                        'nombre' => 'Cámara fotográfica',
+                        'precio' => 300.00,
+                        'descripcion' => 'Cámara réflex digital con lente 18-55mm. Muy poco uso.',
+                        'imagen' => 'img/camara.jpg',
+                        'enlace' => 'producto1.html'
+                    ],
+                ];
+
+
+                    foreach ($productosEjemplo as $producto) {
+                        echo '<div class="product-card">';
+                        echo '<a href="' . htmlspecialchars($producto['enlace']) . '" class="product-link">'; // Enlace a la página de detalles
+                        echo '<img src="' . htmlspecialchars($producto['imagen']) . '" alt="' . htmlspecialchars($producto['nombre']) . '" class="product-image">';
+                        echo '<div class="product-info">';
+                        echo '<h3 class="product-title">' . htmlspecialchars($producto['nombre']) . '</h3>';
+                        echo '<p class="product-price">€' . htmlspecialchars($producto['precio']) . '</p>';
+                        echo '<p class="product-description">' . htmlspecialchars($producto['descripcion']) . '</p>';
+                        echo '</div></a>'; // Cierra el enlace y la tarjeta del producto
+                        echo '</div>'; // Cierra divs de producto
+                    }
+                }
+            
+
+
+           
             ?>
         </div>
 

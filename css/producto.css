@@ -1,109 +1,228 @@
+/* Variables globales - mantenemos consistencia con el diseño principal */
+:root {
+    --primary-color: #14b1a4;
+    --secondary-color: #0f8a81;
+    --background-color: #f5f5f5;
+    --text-color: #333;
+    --danger-color: #dc3545;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+/* Estilos generales */
 * {
-    box-sizing: border-box;
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-html, body {
-    height: 100%;
-    font-family: Arial, sans-serif;
-    background-color: #f7f9fa;
-    color: #333;
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
     line-height: 1.6;
+    padding: 20px;
 }
 
+/* Contenedor principal del producto */
 .producto-container {
-    width: 100%;
-    max-width: 100%;
-    margin: 0;
-    padding: 20px;
-    background-color: white;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    height: 100%;
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
 }
 
+/* Título del producto */
 h1 {
-    color: #4CAF50;
-    margin-bottom: 20px;
+    color: var(--text-color);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
 }
 
-p {
-    margin-bottom: 15px;
+/* Información del producto */
+.producto-container p {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
 }
 
-img {
-    max-width: 100%;
+/* Precio */
+.producto-container p:first-of-type {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+/* Imagen del producto */
+.producto-container img {
+    width: 100%;
+    max-width: 500px;
     height: auto;
-    border-radius: 5px;
-    margin-bottom: 20px;
+    border-radius: 8px;
+    margin: 1.5rem 0 3rem 0; /* Aumentamos el margen inferior a 3rem */
+    box-shadow: var(--shadow);
 }
 
+/* Icono de edición */
 .edit-icon {
-    cursor: pointer;
-    font-size: 24px;
-    color: #4CAF50;
-    margin-bottom: 20px;
     display: inline-block;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    padding: 0.5rem 1rem;
+    background-color: rgba(20, 177, 164, 0.1);
+    border-radius: 6px;
+    margin-top: 2rem; /* Aumentamos solo el margen superior */
+    margin-bottom: 1rem; /* Ajustamos el margen inferior para alinearlo con el botón de eliminar */
+    transition: var(--transition);
 }
 
-.edit-form,
-.delete-form {
-    margin-top: 20px;
-    padding: 20px;
-    background-color: #f0f0f0;
-    border-radius: 5px;
+
+
+
+.edit-icon:hover {
+    background-color: rgba(20, 177, 164, 0.2);
+    transform: translateY(-2px);
 }
 
+/* Formulario de edición */
 .edit-form {
-    display: none;
+    background-color: #f8f8f8;
+    padding: 2rem;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    border: 1px solid #eee;
 }
 
-form {
+.edit-form h3 {
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+}
+
+.edit-form form {
     display: flex;
     flex-direction: column;
+    gap: 1rem;
 }
 
-input[type="text"],
-input[type="number"],
-textarea {
-    margin-bottom: 10px;
-    padding: 10px;
+.edit-form input[type="text"],
+.edit-form input[type="number"],
+.edit-form textarea {
+    padding: 0.8rem;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: var(--transition);
 }
 
-input[type="submit"],
-button {
-    padding: 10px 15px;
-    background-color: #4CAF50;
+.edit-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.edit-form input[type="file"] {
+    padding: 0.5rem;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.edit-form input:focus,
+.edit-form textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(20, 177, 164, 0.1);
+}
+
+.edit-form input[type="submit"] {
+    background-color: var(--primary-color);
     color: white;
+    padding: 1rem;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: var(--transition);
 }
 
-input[type="submit"]:hover,
-button:hover {
-    background-color: #45a049;
+.edit-form input[type="submit"]:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
 }
 
-button[type="submit"] {
-    background-color: #f44336;
+/* Formulario de eliminación */
+.delete-form {
+    margin: 1.5rem 0;
 }
 
-button[type="submit"]:hover {
-    background-color: #d32f2f;
+.delete-form button {
+    background-color: var(--danger-color);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
 }
 
-a {
+.delete-form button:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
+/* Enlace para volver */
+.producto-container a {
     display: inline-block;
-    margin-top: 20px;
-    color: #4CAF50;
     text-decoration: none;
+    color: var(--text-color);
+    margin-top: 1.5rem;
+    padding: 0.8rem 1.5rem;
+    background-color: #f0f0f0;
+    border-radius: 6px;
+    transition: var(--transition);
 }
 
-a:hover {
-    text-decoration: underline;
+.producto-container a:hover {
+    background-color: #e0e0e0;
+    color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .producto-container {
+        padding: 1rem;
+        margin: 1rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .edit-form {
+        padding: 1rem;
+    }
+}
+
+/* Animación para mostrar/ocultar el formulario de edición */
+.edit-form {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.edit-form[style*="display: block"] {
+    opacity: 1;
+    max-height: 1000px;
 }

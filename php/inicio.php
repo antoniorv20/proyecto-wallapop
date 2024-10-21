@@ -1,14 +1,7 @@
 <?php
+session_start(); // Asegúrate de iniciar la sesión aquí
 require_once 'conexion.php';
 
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    echo "Error de conexión: " . $e->getMessage();
-    exit;
-}
 
 // Verificar si se envió el formulario
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -17,7 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Validar datos
     if (empty($email) || empty($contraseña)) {
-        echo "Por favor completa todos los campos.";
+        $_SESSION['error'] = 'Por favor completa todos los campos.';
+        header("Location: ../inicio-sesion.php");
         exit;
     }
 
@@ -31,11 +25,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Autenticación exitosa
         $_SESSION['usuario_id'] = $usuario['id']; // Guardar ID del usuario en la sesión
         $_SESSION['usuario_nombre'] = $usuario['nombre']; // Guardar nombre del usuario
-        header("Location: perfil.php"); // Redirigir al perfil del usuario
+        header("Location: ../index.php"); // Redirigir al perfil del usuario
         exit;
     } else {
-        // Usuario no encontrado o contraseña incorrecta
-        echo "Email o contraseña incorrectos.";
+        // Credenciales inválidas
+        $_SESSION['error'] = 'Email o contraseña incorrectos'; // Establecer mensaje de error en la sesión
+        header("Location: ../inicio-sesion.php"); // Redirigir de nuevo a la página de inicio de sesión
+        exit;
     }
 }
-?>
+

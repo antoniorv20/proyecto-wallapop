@@ -2,14 +2,6 @@
 require_once 'conexion.php';
 
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    echo "Error de conexión: " . $e->getMessage();
-    exit;
-}
-
 // Obtener productos de la base de datos
 $stmt = $pdo->query("SELECT * FROM productos");
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {

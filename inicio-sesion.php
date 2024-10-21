@@ -10,13 +10,23 @@
 
 <div class="form-container">
     <p class="title">Bienvenido de nuevo</p>
+
+    <!-- Mostrar alerta si hay un error -->
+    <?php
+    session_start(); // Asegúrate de iniciar la sesión aquí
+    if (isset($_SESSION['error'])) {
+        echo "<script>alert('" . $_SESSION['error'] . "');</script>";
+        unset($_SESSION['error']); // Limpiar el mensaje de error después de mostrarlo
+    }
+    ?>
+
     <form class="form" action="php/inicio.php" method="POST"> <!-- Añadido action y method -->
         <input type="email" class="input" name="email" placeholder="Email" required>
         <input type="password" class="input" name="contraseña" placeholder="Contraseña" required>
         <p class="page-link">
             <span class="page-link-label">¿Olvidaste tu contraseña?</span>
         </p>
-        <button type="submit" class="form-btn"><a href="index.php">Iniciar Sesión</a></button> 
+        <button type="submit" class="form-btn">Iniciar Sesión</button>
     </form>
     <p class="sign-up-label">
         ¿No tienes una cuenta? <span class="sign-up-link"><a href="registro-usuario.php">Crear una nueva</a></span>

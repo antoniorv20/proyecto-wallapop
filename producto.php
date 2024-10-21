@@ -1,17 +1,6 @@
 <?php
-// Conexión a la base de datos
-$host = 'localhost';
-$db = 'tiendap';
-$user = 'root';
-$pass = '';
+require_once 'php/conexion.php';
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    echo "Error de conexión: " . $e->getMessage();
-    exit;
-}
 
 // Verificar si se envía el formulario de eliminación
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
@@ -39,9 +28,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_id'])) {
     $precio = $_POST['precio'];
     $descripcion = $_POST['descripcion'];
 
+    // Manejo de la nueva imagen
+    $imagen = $_POST['imagen_actual']; // Imagen actual por defecto
+    if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] == 0) {
+        // Definir la ruta donde se guardará la nueva imagen
+        $carpetaDestino = 'uploads/'; // Cambia a tu carpeta deseada
+        $nombreImagen = basename($_FILES['imagen']['name']);
+        $rutaImagen = $carpetaDestino . $nombreImagen;
+
+        // Mover la imagen a la carpeta de destino
+        if (move_uploaded_file($_FILES['imagen']['tmp_name'], $rutaImagen)) {
+            $imagen = $rutaImagen; // Actualiza la variable con la nueva ruta
+        } else {
+            echo "Error al subir la imagen.";
+        }
+    }
+
     try {
-        $stmt = $pdo->prepare("UPDATE productos SET nombre = ?, precio = ?, descripcion = ? WHERE id = ?");
-        $stmt->execute([$nombre, $precio, $descripcion, $id]);
+        $stmt = $pdo->prepare("UPDATE productos SET nombre = ?, precio = ?, descripcion = ?, imagen = ? WHERE id = ?");
+        $stmt->execute([$nombre, $precio, $descripcion, $imagen, $id]);
 
         if ($stmt->rowCount() > 0) {
             echo "Producto actualizado exitosamente.";
@@ -71,7 +76,7 @@ if (isset($_GET['id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($producto['nombre']); ?></title>
-    <link rel="stylesheet" href="css/producto.css"> <!-- Vincula tu archivo CSS -->
+    <link rel="stylesheet" href="css/producto.css">
     <style>
         .edit-form {
             display: none; /* Oculto inicialmente */
@@ -107,15 +112,19 @@ if (isset($_GET['id'])) {
         <!-- Formulario para editar el producto, oculto inicialmente -->
         <div class="edit-form" id="edit-form">
             <h3>Editar Producto</h3>
-            <form method="POST" action="">
+            <form method="POST" action="" enctype="multipart/form-data">
                 <input type="hidden" name="edit_id" value="<?php echo $producto['id']; ?>">
+                <input type="hidden" name="imagen_actual" value="<?php echo htmlspecialchars($producto['imagen']); ?>">
                 <input type="text" name="nombre" value="<?php echo htmlspecialchars($producto['nombre']); ?>" required>
                 <input type="number" name="precio" value="<?php echo htmlspecialchars($producto['precio']); ?>" required>
                 <textarea name="descripcion" required><?php echo htmlspecialchars($producto['descripcion']); ?></textarea>
+                <input type="file" name="imagen" accept="image/*"> <!-- Campo para cargar una nueva imagen -->
                 <input type="submit" value="Actualizar Producto">
             </form>
         </div>
 
+
+        
         <!-- Formulario para eliminar el producto -->
         <div class="delete-form">
             <form method="POST" action="" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este producto?');">
