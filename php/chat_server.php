@@ -18,11 +18,11 @@ function debug_log($message) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Manejar nuevos mensajes
-    $message = $_POST['message'] ?? '';
+    $message = trim($_POST['message'] ?? ''); // Eliminar espacios en blanco
     if (!empty($message)) {
         $username = $_SESSION['username'] ?? 'Comprador';
         $newMessage = date('Y-m-d H:i:s') . " - $username: " . htmlspecialchars($message) . "\n";
-        $result = file_put_contents($chatFile, $newMessage, FILE_APPEND);
+        $result = file_put_contents($chatFile, $newMessage, FILE_APPEND | LOCK_EX); // Bloqueo de archivo para evitar colisiones
         if ($result === false) {
             debug_log("Error al escribir en el archivo: $chatFile");
             http_response_code(500);
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $currentModified = filemtime($chatFile);
 
     // Esperar hasta que haya nuevos mensajes o hasta que pasen 30 segundos
-    $timeout = 5;
+    $timeout = 5; // Aumentar el timeout para reducir el número de peticiones
     $start = time();
     while ($currentModified <= $lastModified) {
         usleep(100000); // Esperar 0.1 segundos
@@ -52,10 +52,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Enviar nuevos mensajes
-    $messages = file_get_contents($chatFile);
-    echo json_encode([
-        'messages' => $messages,
-        'timestamp' => $currentModified
-    ]);
+    // Enviar nuevos mensajes si el archivo fue modificado
+    if ($currentModified > $lastModified) {
+        $messages = file_get_contents($chatFile);
+        echo json_encode([
+            'messages' => $messages,
+            'timestamp' => $currentModified
+        ]);
+    } else {
+        // No hay nuevos mensajes dentro del timeout
+        http_response_code(204); // Sin contenido
+        echo json_encode(['timestamp' => $currentModified]);
+    }
 }

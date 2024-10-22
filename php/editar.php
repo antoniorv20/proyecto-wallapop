@@ -10,37 +10,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
         $stmt->execute([$id]);
 
         if ($stmt->rowCount() > 0) {
-            echo "Producto eliminado exitosamente.";
             header('Location: perfil.php');
             exit;
         } else {
-            echo "Error al eliminar el producto.";
+            // Si falla la eliminación, puedes manejar el error aquí
+            header('Location: perfil.php?error=delete');
+            exit;
         }
     } catch (PDOException $e) {
-        echo "Error al eliminar el producto: " . $e->getMessage();
+        // Manejar el error si algo sale mal
+        header('Location: perfil.php?error=delete');
+        exit;
     }
 }
 
 // Verificar si se envía el formulario de edición
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_id'])) {
     $id = intval($_POST['edit_id']);
-    $nombre = $_POST['nombre'];
-    $precio = $_POST['precio'];
-    $descripcion = $_POST['descripcion'];
+    $nombre = htmlspecialchars(trim($_POST['nombre']));
+    $precio = floatval($_POST['precio']);
+    $descripcion = htmlspecialchars(trim($_POST['descripcion']));
 
     // Manejo de la nueva imagen
     $imagen = $_POST['imagen_actual']; // Imagen actual por defecto
     if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] == 0) {
-        // Definir la ruta donde se guardará la nueva imagen
-        $carpetaDestino = 'uploads/'; // Cambia a tu carpeta deseada
-        $nombreImagen = basename($_FILES['imagen']['name']);
-        $rutaImagen = $carpetaDestino . $nombreImagen;
+        // Validar que el archivo subido sea una imagen
+        $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (in_array(mime_content_type($_FILES['imagen']['tmp_name']), $allowedMimeTypes)) {
+            // Definir la ruta donde se guardará la nueva imagen
+            $carpetaDestino = 'uploads/'; // Cambia a tu carpeta deseada
+            $nombreImagen = basename($_FILES['imagen']['name']);
+            $rutaImagen = $carpetaDestino . $nombreImagen;
 
-        // Mover la imagen a la carpeta de destino
-        if (move_uploaded_file($_FILES['imagen']['tmp_name'], $rutaImagen)) {
-            $imagen = $rutaImagen; // Actualiza la variable con la nueva ruta
+            // Mover la imagen a la carpeta de destino
+            if (move_uploaded_file($_FILES['imagen']['tmp_name'], $rutaImagen)) {
+                $imagen = $rutaImagen; // Actualiza la variable con la nueva ruta
+            } else {
+                header('Location: perfil.php?error=upload');
+                exit;
+            }
         } else {
-            echo "Error al subir la imagen.";
+            header('Location: perfil.php?error=invalid_image');
+            exit;
         }
     }
 
@@ -49,12 +60,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_id'])) {
         $stmt->execute([$nombre, $precio, $descripcion, $imagen, $id]);
 
         if ($stmt->rowCount() > 0) {
-            echo "Producto actualizado exitosamente.";
+            header('Location: perfil.php'); // Redirigir después de actualizar
+            exit;
         } else {
-            echo "No se pudo actualizar el producto.";
+            header('Location: perfil.php?error=update');
+            exit;
         }
     } catch (PDOException $e) {
-        echo "Error al actualizar el producto: " . $e->getMessage();
+        header('Location: perfil.php?error=update');
+        exit;
     }
 }
 
@@ -69,7 +83,10 @@ if (isset($_GET['id'])) {
 
     if ($producto):
 ?>
-<?
+
+<!-- Aquí colocarías el formulario para editar el producto, mostrando los datos del producto -->
+
+<?php
     else:
         echo "Producto no encontrado.";
     endif;

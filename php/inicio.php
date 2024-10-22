@@ -1,14 +1,13 @@
 <?php
-session_start(); // Asegúrate de iniciar la sesión aquí
-require_once 'conexion.php';
-
+session_start(); // Iniciar sesión
+require_once 'conexion.php'; // Incluir la conexión a la base de datos
 
 // Verificar si se envió el formulario
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = $_POST['email'];
-    $contraseña = $_POST['contraseña'];
+    $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL); // Limpiar el email
+    $contraseña = trim($_POST['contraseña']); // Limpiar la contraseña
 
-    // Validar datos
+    // Validar campos vacíos
     if (empty($email) || empty($contraseña)) {
         $_SESSION['error'] = 'Por favor completa todos los campos.';
         header("Location: ../inicio-sesion.php");
@@ -25,13 +24,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Autenticación exitosa
         $_SESSION['usuario_id'] = $usuario['id']; // Guardar ID del usuario en la sesión
         $_SESSION['usuario_nombre'] = $usuario['nombre']; // Guardar nombre del usuario
-        header("Location: ../index.php"); // Redirigir al perfil del usuario
+        header("Location: ../index.php"); // Redirigir a la página de inicio
         exit;
     } else {
-        // Credenciales inválidas
-        $_SESSION['error'] = 'Email o contraseña incorrectos'; // Establecer mensaje de error en la sesión
-        header("Location: ../inicio-sesion.php"); // Redirigir de nuevo a la página de inicio de sesión
+        // Verificar si el email existe pero la contraseña es incorrecta
+        if ($usuario) {
+            $_SESSION['error'] = 'Contraseña incorrecta.'; // Contraseña incorrecta
+        } else {
+            $_SESSION['error'] = 'No existe ninguna cuenta registrada con este email.'; // Email no registrado
+        }
+        header("Location: ../inicio-sesion.php");
         exit;
     }
 }
-

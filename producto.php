@@ -125,6 +125,8 @@ if (isset($_GET['id'])) {
 
 
         
+
+        
         <!-- Formulario para eliminar el producto -->
         <div class="delete-form">
             <form method="POST" action="" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este producto?');">

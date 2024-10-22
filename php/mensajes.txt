@@ -1,3 +1,8 @@
 
 2024-10-18 10:19:00 - Comprador: hola
 2024-10-18 10:19:07 - Comprador: pa ti mi cola
+2024-10-22 12:04:34 - Comprador: holla juan
+2024-10-22 12:04:34 - Comprador: hola jose
+2024-10-22 12:05:48 - Comprador: illo
+2024-10-22 12:06:29 - Comprador: a ver
+2024-10-22 12:06:30 - Comprador: probamos
